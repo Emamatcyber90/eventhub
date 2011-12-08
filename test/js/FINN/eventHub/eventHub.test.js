@@ -1,7 +1,7 @@
 (function(){
 
     TestCase("Should provide for registering event handlers", {
-        "test should provide registrartion for an event": function(){
+        "test should provide registration for an event": function(){
             var hub = FINN.eventHub.create({subscribers: []});
             assertNotUndefined("Should have an on method", hub.subscribe);
             hub.subscribe("someEvent", function(){});
@@ -13,6 +13,12 @@
             hub.subscribe("ploppic", function(){});
             hub.subscribe("ploppic", function(){});
             assertEquals("Should have correct number of registered subscribers", 3, hub.numSubscribers("ploppic"));
+        },
+        "test should allow for multiple events per callback": function(){
+            var hub = FINN.eventHub.create({subscribers: []});
+            hub.subscribe(["oneEvent","anotherEvent"], function(){});
+            assertEquals(1, hub.numSubscribers("oneEvent"));
+            assertEquals(1, hub.numSubscribers("anotherEvent"));
         },
         "test should provide for un-registering listeners": function(){
             var hub = FINN.eventHub.create({subscribers: []});
@@ -74,6 +80,12 @@
             hub.subscribe("ploppic", spy);
             hub.publish("ploppic", {});
             assertTrue("Should call callback function when dispatching event", spy.called);
+
+            var spy2 = sinon.spy();
+            hub.subscribe(["oneEvent","anotherEvent"], spy2);
+            hub.publish("oneEvent", {});
+            hub.publish("anotherEvent", {});
+            assertEquals(2, spy2.callCount);
         },
 		"test should provide clients with ability to catch errors occuring when throwing events callback functions":function(){
 			FINN.eventHub.subscribe("throwError", function(){throw new Error("This is wrong, dead wrong!")});

@@ -1,6 +1,7 @@
 var FINN = FINN || {};
 FINN.eventHub = (function(){
     var objCreate = Object.create || function (o) {function F() {}F.prototype = o;return new F();};
+    var isArray = Array.isArray || function(input) {return Object.prototype.toString.apply(input) === '[object Array]';};
 
 	function extend(obj, extObj) {
 	    if (arguments.length > 2) {
@@ -28,6 +29,12 @@ FINN.eventHub = (function(){
     }
     function addSubscriber(topic, callback){
         if (typeof callback != "function") throw new TypeError("Callbacks must be functions");
+        if (isArray(topic)){
+            for (var i = 0; i < topic.length; i++){
+                this.subscribe(topic[i], callback);
+            }
+            return;
+        }
         if (!this.subscribers[topic]){
             this.subscribers[topic] = [];
         }
